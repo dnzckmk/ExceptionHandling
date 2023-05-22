@@ -1,36 +1,44 @@
 ﻿using System;
 using Task3.DoNotChange;
+using Task3.Exceptions;
 
 namespace Task3
 {
     public class UserTaskService
     {
-        private readonly IUserDao _userDao;
+        private readonly IUserDao userDao;
 
         public UserTaskService(IUserDao userDao)
         {
-            _userDao = userDao;
+            this.userDao = userDao;
         }
 
-        public int AddTaskForUser(int userId, UserTask task)
+        /// <summary>
+        /// Add task for the user.
+        /// </summary>
+        /// <param name="userId">User id.</param>
+        /// <param name="task">UserTask object to add to user's tasks.</param>
+        /// <exception cref="ArgumentException">If the userId is not in valid form or the user is not found, throws ArgumentException.</exception>
+        /// <exception cref="InvalidOperationException">If the task is already exists, throws InvalidOperationException.</exception>
+        public void AddTaskForUser(int userId, UserTask task)
         {
             if (userId < 0)
-                return -1;
+            {
+                throw new ArgumentException("Invalid userId");
+            }
 
-            var user = _userDao.GetUser(userId);
-            if (user == null)
-                return -2;
+            var user = this.userDao.GetUser(userId) ?? throw new ArgumentException("User not found");
 
             var tasks = user.Tasks;
             foreach (var t in tasks)
             {
                 if (string.Equals(task.Description, t.Description, StringComparison.OrdinalIgnoreCase))
-                    return -3;
+                {
+                    throw new InvalidOperationException("The task already exists");
+                }
             }
 
             tasks.Add(task);
-
-            return 0;
         }
     }
 }

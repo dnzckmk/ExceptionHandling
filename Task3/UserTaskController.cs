@@ -1,42 +1,43 @@
-﻿using Task3.DoNotChange;
+﻿using System;
+using Task3.DoNotChange;
+using Task3.Exceptions;
 
 namespace Task3
 {
     public class UserTaskController
     {
-        private readonly UserTaskService _taskService;
+        private readonly UserTaskService taskService;
 
         public UserTaskController(UserTaskService taskService)
         {
-            _taskService = taskService;
+            this.taskService = taskService;
         }
 
+        /// <summary>
+        /// Add task for the user with the provided userId.
+        /// </summary>
+        /// <param name="userId">User id.</param>
+        /// <param name="description">Task description.</param>
+        /// <param name="model">Response model.</param>
+        /// <returns>Returns true if operation successfully done, returns false with exception messages.</returns>
         public bool AddTaskForUser(int userId, string description, IResponseModel model)
         {
-            string message = GetMessageForModel(userId, description);
-            if (message != null)
+            try
             {
-                model.AddAttribute("action_result", message);
+                var task = new UserTask(description);
+                this.taskService.AddTaskForUser(userId, task);
+                return true;
+            }
+            catch (ArgumentException ex)
+            {
+                model.AddAttribute("action_result", ex.Message);
                 return false;
             }
-
-            return true;
-        }
-
-        private string GetMessageForModel(int userId, string description)
-        {
-            var task = new UserTask(description);
-            int result = _taskService.AddTaskForUser(userId, task);
-            if (result == -1)
-                return "Invalid userId";
-
-            if (result == -2)
-                return "User not found";
-
-            if (result == -3)
-                return "The task already exists";
-
-            return null;
+            catch (InvalidOperationException ex)
+            {
+                model.AddAttribute("action_result", ex.Message);
+                return false;
+            }
         }
     }
 }
