@@ -16,26 +16,25 @@ namespace Task3
         /// <summary>
         /// Add task for the user.
         /// </summary>
-        /// <param name="userId">User id</param>
+        /// <param name="userId">User id.</param>
         /// <param name="task">UserTask object to add to user's tasks.</param>
-        /// <exception cref="InvalidUserIdException">If the userId is not in valid form, throws InvalidUserIdException.</exception>
-        /// <exception cref="UserNotFoundException">If the user is not found, throws UserNotFoundException.</exception>
-        /// <exception cref="TaskAlreadyExistsException">If the task is already exists, throws TaskAlreadyExistsException.</exception>
+        /// <exception cref="ArgumentException">If the userId is not in valid form or the user is not found, throws ArgumentException.</exception>
+        /// <exception cref="InvalidOperationException">If the task is already exists, throws InvalidOperationException.</exception>
         public void AddTaskForUser(int userId, UserTask task)
         {
             if (userId < 0)
             {
-                throw new InvalidUserIdException("Invalid userId");
+                throw new ArgumentException("Invalid userId");
             }
 
-            var user = this.userDao.GetUser(userId) ?? throw new UserNotFoundException("User not found");
+            var user = this.userDao.GetUser(userId) ?? throw new ArgumentException("User not found");
 
             var tasks = user.Tasks;
             foreach (var t in tasks)
             {
                 if (string.Equals(task.Description, t.Description, StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new TaskAlreadyExistsException("The task already exists");
+                    throw new InvalidOperationException("The task already exists");
                 }
             }
 

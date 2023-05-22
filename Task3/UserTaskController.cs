@@ -1,4 +1,5 @@
-﻿using Task3.DoNotChange;
+﻿using System;
+using Task3.DoNotChange;
 using Task3.Exceptions;
 
 namespace Task3
@@ -27,17 +28,12 @@ namespace Task3
                 this.taskService.AddTaskForUser(userId, task);
                 return true;
             }
-            catch (InvalidUserIdException ex)
+            catch (ArgumentException ex)
             {
                 model.AddAttribute("action_result", ex.Message);
                 return false;
             }
-            catch (UserNotFoundException ex)
-            {
-                model.AddAttribute("action_result", ex.Message);
-                return false;
-            }
-            catch (TaskAlreadyExistsException ex)
+            catch (InvalidOperationException ex)
             {
                 model.AddAttribute("action_result", ex.Message);
                 return false;
